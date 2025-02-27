@@ -6,6 +6,13 @@ import {
   updateCreatureById,
   deleteCreatureById,
 } from "./controllers/creatureController";
+import {
+  createCategory,
+  getAllCategories,
+  getCategoryById,
+  updateCategoryById,
+  deleteCategoryById,
+} from "./controllers/categoryController";
 
 const router: Router = Router();
 
@@ -19,5 +26,12 @@ router.get("/creatures", getAllCreatures);
 router.get("/creatures/:id", getCreatureById);
 router.put("/creatures/:id", updateCreatureById);
 router.delete("/creatures/:id", deleteCreatureById);
+
+// CRUD routes for categories
+router.post("/categories", createCategory);
+router.get("/categories", getAllCategories);
+router.get("/categories/:id", getCategoryById);
+router.put("/categories/:id", updateCategoryById);
+router.delete("/categories/:id", deleteCategoryById);
 
 export default router;

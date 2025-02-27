@@ -33,6 +33,17 @@ export async function createCreature(
       return;
     }
 
+    // Check if creature already exists
+    const existingCreature = await CreatureModel.findOne({
+      name: new RegExp(`^${data.name}$`, "i"),
+    });
+    if (existingCreature) {
+      res
+        .status(400)
+        .json({ error: "A creature with this name already exists." });
+      return;
+    }
+
     // Create new creature
     const creature = new CreatureModel(data);
     const result = await creature.save();
