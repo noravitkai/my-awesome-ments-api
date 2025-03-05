@@ -24,7 +24,6 @@ export async function createCreature(
       !data.powerLevel ||
       !data.strengths ||
       !data.weaknesses ||
-      !data.folkloreStory ||
       !data.imageURL ||
       !data.category ||
       !data._createdBy
