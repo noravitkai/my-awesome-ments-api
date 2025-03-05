@@ -3,6 +3,8 @@ import dotenvFlow from "dotenv-flow";
 import routes from "./routes";
 import { testConnection } from "./repository/database";
 import cors from "cors";
+import fileUpload from "express-fileupload";
+import path from "path";
 
 dotenvFlow.config();
 
@@ -30,12 +32,22 @@ export function startServer() {
 
   app.use(express.json());
 
+  // Enable file uploads
+  app.use(
+    fileUpload({
+      createParentPath: true,
+    })
+  );
+
+  // Serve static files from an uploads folder
+  app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
   app.use("/api", routes);
 
   testConnection();
 
   const PORT: number = parseInt(process.env.PORT as string) || 4000;
   app.listen(PORT, function () {
-    console.log("Server is up and running on port 4000.");
+    console.log("Server is up and running on port", PORT);
   });
 }
