@@ -13,7 +13,6 @@ const userSchema = new Schema<User>(
       match: /\S+@\S+\.\S+/,
     },
     password: { type: String, required: true, min: 6, max: 255 },
-    role: { type: String, enum: ["admin", "user"], default: "user" },
   },
   { timestamps: true }
 );

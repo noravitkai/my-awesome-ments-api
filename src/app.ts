@@ -5,6 +5,7 @@ import { testConnection } from "./repository/database";
 import cors from "cors";
 import fileUpload from "express-fileupload";
 import path from "path";
+import { setupDocs } from "./util/documentation";
 
 dotenvFlow.config();
 
@@ -31,6 +32,8 @@ export function startServer() {
   setupCors();
 
   app.use(express.json());
+
+  setupDocs(app);
 
   // Enable file uploads
   app.use(
