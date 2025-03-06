@@ -280,9 +280,9 @@ router.post(
 
       await image.mv(uploadPath);
 
-      const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${
-        image.name
-      }`;
+      const baseUrl =
+        process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
+      const fileUrl = `${baseUrl}/uploads/${image.name}`;
       res.json({ message: "Upload successful", imageUrl: fileUrl });
     } catch (err) {
       console.error(err);
