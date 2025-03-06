@@ -8,11 +8,11 @@ import { Application } from "express";
  */
 export function setupDocs(app: Application) {
   const swaggerDefinition = {
-    openapi: "3.0.0",
     info: {
-      title: "Title",
+      title: "A Hungarian Mythical Creatures API",
       version: "1.0.0",
-      description: "Description",
+      description:
+        "API documentation for managing a collection of mythical creatures from Hungarian folklore.",
     },
     servers: [
       {
