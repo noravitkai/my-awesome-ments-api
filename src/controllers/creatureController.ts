@@ -24,8 +24,8 @@ export async function createCreature(
       !data.powerLevel ||
       !data.strengths ||
       !data.weaknesses ||
+      !data.funFact ||
       !data.imageURL ||
-      !data.category ||
       !data._createdBy
     ) {
       res.status(400).json({ error: "Missing required fields." });

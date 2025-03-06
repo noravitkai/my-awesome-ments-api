@@ -1,4 +1,3 @@
-import { Category } from "./category";
 import { User } from "./user";
 
 export interface Creature extends Document {
@@ -9,7 +8,7 @@ export interface Creature extends Document {
   powerLevel: number;
   strengths: string;
   weaknesses: string;
+  funFact: string;
   imageURL: string;
-  category: Category["_id"];
   _createdBy: User["_id"];
 }
