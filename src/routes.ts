@@ -217,6 +217,8 @@ router.delete("/creatures/:id", verifyToken, deleteCreatureById);
  *       - Upload Routes
  *     summary: Upload an image
  *     description: Uploads an image file to Cloudinary and returns its URL.
+ *     security:
+ *       - ApiKeyAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -250,7 +252,6 @@ router.post(
     }
     const image = req.files.image as UploadedFile;
 
-    // Wrap the Cloudinary upload_stream in a Promise
     const streamUpload = (): Promise<string> => {
       return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(

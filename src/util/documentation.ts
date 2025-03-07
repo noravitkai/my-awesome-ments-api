@@ -8,6 +8,7 @@ import { Application } from "express";
  */
 export function setupDocs(app: Application) {
   const swaggerDefinition = {
+    openapi: "3.0.0",
     info: {
       title: "A Hungarian Mythical Creatures API",
       version: "1.0.0",
@@ -17,7 +18,11 @@ export function setupDocs(app: Application) {
     servers: [
       {
         url: "http://localhost:4000/api/",
-        description: "Local development server",
+        description: "Development server",
+      },
+      {
+        url: "https://my-awesome-ments-api.onrender.com/api/",
+        description: "Production server",
       },
     ],
     components: {
@@ -49,7 +54,7 @@ export function setupDocs(app: Application) {
           type: "object",
           properties: {
             id: { type: "string" },
-            name: { type: "string" },
+            username: { type: "string" },
             email: { type: "string" },
             password: { type: "string" },
             createdAt: { type: "string" },
