@@ -11,22 +11,31 @@ export async function createCreature(
   req: Request,
   res: Response
 ): Promise<void> {
-  const data = req.body;
+  const {
+    name,
+    translation,
+    description,
+    powerLevel,
+    strengths,
+    weaknesses,
+    funFact,
+    _createdBy,
+  } = req.body;
+  const imageURL = req.body.imageURL;
 
   try {
     await connect();
 
-    // Validate required fields
+    // Validate required fields except imageURL (since it's uploaded separately)
     if (
-      !data.name ||
-      !data.translation ||
-      !data.description ||
-      !data.powerLevel ||
-      !data.strengths ||
-      !data.weaknesses ||
-      !data.funFact ||
-      !data.imageURL ||
-      !data._createdBy
+      !name ||
+      !translation ||
+      !description ||
+      !powerLevel ||
+      !strengths ||
+      !weaknesses ||
+      !funFact ||
+      !_createdBy
     ) {
       res.status(400).json({ error: "Missing required fields." });
       return;
@@ -34,7 +43,7 @@ export async function createCreature(
 
     // Check if creature already exists
     const existingCreature = await CreatureModel.findOne({
-      name: new RegExp(`^${data.name}$`, "i"),
+      name: new RegExp(`^${name}$`, "i"),
     });
     if (existingCreature) {
       res
@@ -43,8 +52,20 @@ export async function createCreature(
       return;
     }
 
-    // Create new creature
-    const creature = new CreatureModel(data);
+    // Create new creature object
+    const creatureData = {
+      name,
+      translation,
+      description,
+      powerLevel,
+      strengths,
+      weaknesses,
+      funFact,
+      imageURL,
+      _createdBy,
+    };
+
+    const creature = new CreatureModel(creatureData);
     const result = await creature.save();
 
     res.status(201).json(result);

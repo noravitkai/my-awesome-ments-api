@@ -1,5 +1,4 @@
 import { Router, Request, Response, NextFunction } from "express";
-import path from "path";
 import fileUpload, { UploadedFile } from "express-fileupload";
 import {
   createCreature,
@@ -13,6 +12,7 @@ import {
   loginUser,
   verifyToken,
 } from "./controllers/authController";
+import cloudinary from "./config/cloudinaryConfig";
 
 const router: Router = Router();
 
@@ -49,15 +49,6 @@ router.get("/", (req: Request, res: Response) => {
  *     responses:
  *       200:
  *         description: Registration successful.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                 data:
- *                   type: string
  */
 router.post("/user/register", registerUser);
 
@@ -83,20 +74,6 @@ router.post("/user/register", registerUser);
  *     responses:
  *       200:
  *         description: Login successful.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                 data:
- *                   type: object
- *                   properties:
- *                     userId:
- *                       type: string
- *                     token:
- *                       type: string
  */
 router.post("/user/login", loginUser);
 
@@ -119,10 +96,6 @@ router.post("/user/login", loginUser);
  *     responses:
  *       201:
  *         description: Creation successful.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/schemas/Creature"
  */
 router.post("/creatures", verifyToken, createCreature);
 
@@ -243,7 +216,7 @@ router.delete("/creatures/:id", verifyToken, deleteCreatureById);
  *     tags:
  *       - Upload Routes
  *     summary: Upload an image
- *     description: Uploads an image file and returns its URL.
+ *     description: Uploads an image file to Cloudinary and returns its URL.
  *     requestBody:
  *       required: true
  *       content:
@@ -269,25 +242,41 @@ router.delete("/creatures/:id", verifyToken, deleteCreatureById);
  */
 router.post(
   "/upload",
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      if (!req.files || !req.files.image) {
-        res.status(400).json({ error: "No file uploaded" });
-        return;
-      }
-      const image = req.files.image as UploadedFile;
-      const uploadPath = path.join(__dirname, "../uploads", image.name);
-
-      await image.mv(uploadPath);
-
-      const baseUrl =
-        process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
-      const fileUrl = `${baseUrl}/uploads/${image.name}`;
-      res.json({ message: "Upload successful", imageUrl: fileUrl });
-    } catch (err) {
-      console.error(err);
-      next(err);
+  verifyToken,
+  (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.files || !req.files.image) {
+      res.status(400).json({ error: "No file uploaded" });
+      return;
     }
+    const image = req.files.image as UploadedFile;
+
+    // Wrap the Cloudinary upload_stream in a Promise
+    const streamUpload = (): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "mythical_creatures" },
+          (error, uploadResult) => {
+            if (error) {
+              return reject(error);
+            }
+            if (uploadResult && uploadResult.secure_url) {
+              return resolve(uploadResult.secure_url);
+            }
+            reject(new Error("Upload failed without error"));
+          }
+        );
+        stream.end(image.data);
+      });
+    };
+
+    streamUpload()
+      .then((secure_url) => {
+        res.json({ message: "File upload successful", imageUrl: secure_url });
+      })
+      .catch((err) => {
+        console.error("Cloudinary Upload Error:", err);
+        res.status(500).json({ error: "File upload failed" });
+      });
   }
 );
 

@@ -1,22 +1,14 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application } from "express";
 import dotenvFlow from "dotenv-flow";
 import routes from "./routes";
 import { testConnection } from "./repository/database";
 import cors from "cors";
 import fileUpload from "express-fileupload";
-import path from "path";
-import fs from "fs";
 import { setupDocs } from "./util/documentation";
 
 dotenvFlow.config();
 
 const app: Application = express();
-
-// Ensure the uploads folder exists
-const uploadsDir = path.join(__dirname, "../uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
 
 function setupCors() {
   app.use(
@@ -42,15 +34,11 @@ export function startServer() {
 
   setupDocs(app);
 
-  // Enable file uploads
   app.use(
     fileUpload({
       createParentPath: true,
     })
   );
-
-  // Serve static files from the uploads folder
-  app.use("/uploads", express.static(uploadsDir));
 
   app.use("/api", routes);
 
