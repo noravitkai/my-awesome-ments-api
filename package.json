@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "rm -rf ./dist && tsc",
-    "start-dev": "npx nodemon",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start-dev": "cross-env NODE_ENV=development npx nodemon",
+    "testdb": "cross-env NODE_ENV=test npx ts-node ./src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -46,6 +46,7 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.51.1",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
