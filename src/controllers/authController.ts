@@ -122,7 +122,7 @@ export function verifyToken(
 ): void {
   const token = req.header("auth-token");
   if (!token) {
-    res.status(400).json({ error: "Access Denied." });
+    res.status(400).json({ error: "Access denied." });
     return;
   }
 
@@ -130,7 +130,7 @@ export function verifyToken(
     jwt.verify(token, process.env.TOKEN_SECRET as string);
     next();
   } catch {
-    res.status(401).send("Invalid Token");
+    res.status(401).send("Invalid token.");
   }
 }
 
