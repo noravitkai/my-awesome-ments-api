@@ -16,7 +16,7 @@ export default defineConfig({
   },
 
   webServer: {
-    command: "npm run testdb",
+    command: "npm run test-db",
     url: "http://localhost:4000/api",
     reuseExistingServer: false,
   },

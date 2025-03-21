@@ -29,7 +29,7 @@ const router: Router = Router();
  *         description: Server up and running.
  */
 router.get("/", (req: Request, res: Response) => {
-  res.status(200).send("Welcome to my awesome MENTS API!");
+  res.status(200).send("Welcome to a Hungarian Mythical Creatures API!");
 });
 
 /**

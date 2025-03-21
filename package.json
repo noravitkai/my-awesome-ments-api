@@ -6,7 +6,8 @@
   "scripts": {
     "build": "rm -rf ./dist && tsc",
     "start-dev": "cross-env NODE_ENV=development npx nodemon",
-    "testdb": "cross-env NODE_ENV=test npx ts-node ./src/index.ts"
+    "test-db": "cross-env NODE_ENV=test npx ts-node ./src/index.ts",
+    "test": "npx playwright test --reporter=list"
   },
   "repository": {
     "type": "git",
