@@ -13,6 +13,7 @@ import {
   verifyToken,
 } from "./controllers/authController";
 import cloudinary from "./config/cloudinaryConfig";
+import { startCron } from "./controllers/devToolsController";
 
 const router: Router = Router();
 
@@ -280,5 +281,19 @@ router.post(
       });
   }
 );
+
+/**
+ * @swagger
+ * /start-cron:
+ *   get:
+ *     tags:
+ *       - Dev Tools
+ *     summary: Start a cron job to keep Render alive
+ *     description: Pings the server every 5 minutes for 2 hours to prevent sleeping.
+ *     responses:
+ *       200:
+ *         description: Cron job started successfully.
+ */
+router.get("/start-cron", startCron);
 
 export default router;
