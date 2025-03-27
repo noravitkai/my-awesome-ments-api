@@ -3,8 +3,8 @@ import cron, { ScheduledTask } from "node-cron";
 import https from "https";
 
 // Settings
-const TOTAL_DURATION_MINUTES = 5; // Total runtime for the cron job
-const MINUTES_DELTA = 1; // Interval between pings in minutes
+const TOTAL_DURATION_MINUTES = 120; // Total runtime for the cron job
+const MINUTES_DELTA = 5; // Interval between pings in minutes
 const cronPattern = `*/${MINUTES_DELTA} * * * *`; // Every 5 minutes → https://crontab.guru/#*/5_*_*_*_*
 const URL = "https://my-awesome-ments-api.onrender.com/api/"; // Endpoint to keep alive
 
