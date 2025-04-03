@@ -1,5 +1,7 @@
 # A Hungarian Mythical Creatures API
 
+![Build Status](https://github.com/noravitkai/my-awesome-ments-api/actions/workflows/main.yaml/badge.svg)
+
 A REST API built with **Express** and **MongoDB** to manage and browse mythical creatures from Hungarian folklore.
 
 ## Tech Stack
