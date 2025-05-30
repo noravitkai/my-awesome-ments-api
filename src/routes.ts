@@ -14,6 +14,13 @@ import {
 } from "./controllers/authController";
 import cloudinary from "./config/cloudinaryConfig";
 import { startCron } from "./controllers/devToolsController";
+import {
+  createQuestion,
+  getAllQuestions,
+  getQuestionById,
+  updateQuestionById,
+  deleteQuestionById,
+} from "./controllers/quizController";
 
 const router: Router = Router();
 
@@ -295,5 +302,12 @@ router.post(
  *         description: Cron job started successfully.
  */
 router.get("/start-cron", startCron);
+
+// Quiz routes
+router.post("/quiz", verifyToken, createQuestion);
+router.get("/quiz", getAllQuestions);
+router.get("/quiz/:id", getQuestionById);
+router.put("/quiz/:id", verifyToken, updateQuestionById);
+router.delete("/quiz/:id", verifyToken, deleteQuestionById);
 
 export default router;
