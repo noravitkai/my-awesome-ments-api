@@ -24,3 +24,16 @@ export async function connect() {
     process.exit(1);
   }
 }
+
+export async function disconnect() {
+  if (!isConnected) return;
+
+  try {
+    await mongoose.disconnect();
+    console.log("🛑 DB connection closed.");
+  } catch (error) {
+    console.error("❌ Error while disconnecting:", error);
+  } finally {
+    isConnected = false;
+  }
+}
