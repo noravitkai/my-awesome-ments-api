@@ -39,7 +39,7 @@ const questionSchema = new Schema<Question>(
         message: "At least two options are required",
       },
     },
-    _createdBy: { type: String, ref: "User", required: true },
+    _createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }
 );

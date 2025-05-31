@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { connect, disconnect } from "../repository/database";
 import { QuestionModel } from "../models/quizModel";
 
 /**
@@ -11,11 +10,10 @@ export async function createQuestion(
   req: Request,
   res: Response
 ): Promise<void> {
-  const { text, options, _createdBy } = req.body;
+  const { text, options } = req.body;
+  const _createdBy: string = req.body._createdBy;
 
   try {
-    await connect();
-
     // Validate required fields
     if (!text || !Array.isArray(options) || options.length < 2 || !_createdBy) {
       res.status(400).json({
@@ -29,8 +27,6 @@ export async function createQuestion(
     res.status(201).json(saved);
   } catch (error) {
     res.status(500).json({ error: "Error creating question: " + error });
-  } finally {
-    await disconnect();
   }
 }
 
@@ -44,13 +40,13 @@ export async function getAllQuestions(
   res: Response
 ): Promise<void> {
   try {
-    await connect();
-    const questions = await QuestionModel.find();
+    const questions = await QuestionModel.find().populate(
+      "_createdBy",
+      "username email"
+    );
     res.status(200).json(questions);
   } catch (error) {
     res.status(500).json({ error: "Error retrieving questions: " + error });
-  } finally {
-    await disconnect();
   }
 }
 
@@ -65,8 +61,10 @@ export async function getQuestionById(
 ): Promise<void> {
   const { id } = req.params;
   try {
-    await connect();
-    const question = await QuestionModel.findById(id);
+    const question = await QuestionModel.findById(id).populate(
+      "_createdBy",
+      "username email"
+    );
     if (!question) {
       res.status(404).json({ error: "Quiz question not found." });
       return;
@@ -74,8 +72,6 @@ export async function getQuestionById(
     res.status(200).json(question);
   } catch (error) {
     res.status(500).json({ error: "Error retrieving question: " + error });
-  } finally {
-    await disconnect();
   }
 }
 
@@ -92,21 +88,23 @@ export async function updateQuestionById(
   const updateData = req.body;
 
   try {
-    await connect();
-    const updated = await QuestionModel.findByIdAndUpdate(id, updateData, {
-      new: true,
-    });
-    if (!updated) {
+    const existing = await QuestionModel.findById(id).lean();
+    if (!existing) {
       res.status(404).json({ error: "Cannot update question. Not found." });
       return;
     }
+    if (existing._createdBy !== req.body._createdBy) {
+      res.status(403).json({ error: "Access denied." });
+      return;
+    }
+    const updated = await QuestionModel.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
     res
       .status(200)
       .json({ message: "Question updated successfully.", updated });
   } catch (error) {
     res.status(500).json({ error: "Error updating quiz question: " + error });
-  } finally {
-    await disconnect();
   }
 }
 
@@ -122,20 +120,22 @@ export async function deleteQuestionById(
   const { id } = req.params;
 
   try {
-    await connect();
-    const deleted = await QuestionModel.findByIdAndDelete(id);
-    if (!deleted) {
+    const existing = await QuestionModel.findById(id).lean();
+    if (!existing) {
       res
         .status(404)
         .json({ error: "Cannot delete quiz question. Not found." });
       return;
     }
+    if (existing._createdBy !== req.body._createdBy) {
+      res.status(403).json({ error: "Access denied." });
+      return;
+    }
+    const deleted = await QuestionModel.findByIdAndDelete(id);
     res
       .status(200)
       .json({ message: "Quiz question deleted successfully.", deleted });
   } catch (error) {
     res.status(500).json({ error: "Error deleting question: " + error });
-  } finally {
-    await disconnect();
   }
 }

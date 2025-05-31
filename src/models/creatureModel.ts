@@ -11,7 +11,7 @@ const creatureSchema = new Schema<Creature>(
     weaknesses: { type: String, required: true, min: 3, max: 255 },
     funFact: { type: String, required: true, min: 6, max: 255 },
     imageURL: { type: String, required: true },
-    _createdBy: { type: String, ref: "User", required: true },
+    _createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }
 );

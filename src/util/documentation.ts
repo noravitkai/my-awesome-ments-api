@@ -45,9 +45,9 @@ export function setupDocs(app: Application) {
             weaknesses: { type: "string" },
             funFact: { type: "string" },
             imageURL: { type: "string" },
-            _createdBy: { type: "string" },
-            createdAt: { type: "string" },
-            updatedAt: { type: "string" },
+            _createdBy: { type: "string", readOnly: true },
+            createdAt: { type: "string", readOnly: true },
+            updatedAt: { type: "string", readOnly: true },
           },
         },
         User: {
