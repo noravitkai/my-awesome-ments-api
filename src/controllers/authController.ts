@@ -5,7 +5,6 @@ import Joi, { ValidationResult } from "joi";
 
 import { UserModel } from "../models/userModel";
 import { User } from "../interfaces/user";
-import { connect, disconnect } from "../repository/database";
 
 /**
  * Register a new user
@@ -20,8 +19,6 @@ export async function registerUser(req: Request, res: Response): Promise<void> {
       res.status(400).json({ error: error.details[0].message });
       return;
     }
-
-    await connect();
 
     // Check if the email is already registered
     const emailExists = await UserModel.findOne({ email: req.body.email });
@@ -45,8 +42,6 @@ export async function registerUser(req: Request, res: Response): Promise<void> {
     res.status(201).json({ error: null, data: savedUser._id });
   } catch (error) {
     res.status(500).send("Error registering user. Error: " + error);
-  } finally {
-    await disconnect();
   }
 }
 
@@ -63,8 +58,6 @@ export async function loginUser(req: Request, res: Response): Promise<void> {
       res.status(400).json({ error: error.details[0].message });
       return;
     }
-
-    await connect();
 
     // Find the user by email
     const user: User | null = await UserModel.findOne({
@@ -104,8 +97,6 @@ export async function loginUser(req: Request, res: Response): Promise<void> {
       .json({ error: null, data: { userId, token } });
   } catch (error) {
     res.status(500).send("Error logging in user. Error: " + error);
-  } finally {
-    await disconnect();
   }
 }
 
@@ -127,7 +118,12 @@ export function verifyToken(
   }
 
   try {
-    jwt.verify(token, process.env.TOKEN_SECRET as string);
+    const payload = jwt.verify(token, process.env.TOKEN_SECRET as string) as {
+      id: string;
+      username: string;
+      email: string;
+    };
+    req.body._createdBy = payload.id;
     next();
   } catch {
     res.status(401).send("Invalid token.");

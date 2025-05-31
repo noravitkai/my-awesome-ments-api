@@ -1,7 +1,6 @@
-import { User } from "./user";
+import { Types } from "mongoose";
 
-export interface Creature extends Document {
-  _id: string;
+export interface Creature {
   name: string;
   translation: string;
   description: string;
@@ -10,5 +9,5 @@ export interface Creature extends Document {
   weaknesses: string;
   funFact: string;
   imageURL: string;
-  _createdBy: User["_id"];
+  _createdBy: Types.ObjectId | string;
 }

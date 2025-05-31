@@ -14,6 +14,13 @@ import {
 } from "./controllers/authController";
 import cloudinary from "./config/cloudinaryConfig";
 import { startCron } from "./controllers/devToolsController";
+import {
+  createQuestion,
+  getAllQuestions,
+  getQuestionById,
+  updateQuestionById,
+  deleteQuestionById,
+} from "./controllers/quizController";
 
 const router: Router = Router();
 
@@ -281,6 +288,142 @@ router.post(
       });
   }
 );
+
+/**
+ * @swagger
+ * /questions:
+ *   post:
+ *     tags:
+ *       - Quiz Routes
+ *     summary: Add a new question
+ *     description: Adds a new quiz question with options.
+ *     security:
+ *       - ApiKeyAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: "#/components/schemas/Question"
+ *     responses:
+ *       201:
+ *         description: Question created successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Question"
+ */
+router.post("/questions", verifyToken, createQuestion);
+
+/**
+ * @swagger
+ * /questions:
+ *   get:
+ *     tags:
+ *       - Quiz Routes
+ *     summary: Get all quiz questions
+ *     description: Retrieves all quiz questions with their options.
+ *     responses:
+ *       200:
+ *         description: A list of quiz questions.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/Question"
+ */
+router.get("/questions", getAllQuestions);
+
+/**
+ * @swagger
+ * /questions/{id}:
+ *   get:
+ *     tags:
+ *       - Quiz Routes
+ *     summary: Get a question by ID
+ *     description: Retrieves a single quiz question by its ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID of the question.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Question found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Question"
+ */
+router.get("/questions/:id", getQuestionById);
+
+/**
+ * @swagger
+ * /questions/{id}:
+ *   put:
+ *     tags:
+ *       - Quiz Routes
+ *     summary: Update a quiz question
+ *     description: Updates an existing question by its ID.
+ *     security:
+ *       - ApiKeyAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID of the question.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: "#/components/schemas/Question"
+ *     responses:
+ *       200:
+ *         description: Question updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Question"
+ */
+router.put("/questions/:id", verifyToken, updateQuestionById);
+
+/**
+ * @swagger
+ * /questions/{id}:
+ *   delete:
+ *     tags:
+ *       - Quiz Routes
+ *     summary: Delete a question
+ *     description: Deletes a specific quiz question by its ID.
+ *     security:
+ *       - ApiKeyAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID of the question.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Quiz question deleted successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 deletedQuestion:
+ *                   $ref: "#/components/schemas/Question"
+ */
+router.delete("/questions/:id", verifyToken, deleteQuestionById);
 
 /**
  * @swagger

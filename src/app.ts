@@ -1,7 +1,7 @@
 import express, { Application } from "express";
 import dotenvFlow from "dotenv-flow";
 import routes from "./routes";
-import { testConnection } from "./repository/database";
+import { connect } from "./repository/database";
 import cors from "cors";
 import fileUpload from "express-fileupload";
 import { setupDocs } from "./util/documentation";
@@ -27,7 +27,7 @@ function setupCors() {
   );
 }
 
-export function startServer() {
+export async function startServer() {
   setupCors();
 
   app.use(express.json());
@@ -42,7 +42,7 @@ export function startServer() {
 
   app.use("/api", routes);
 
-  testConnection();
+  await connect();
 
   const PORT: number = parseInt(process.env.PORT as string) || 4000;
   app.listen(PORT, function () {

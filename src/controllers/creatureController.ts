@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { CreatureModel } from "../models/creatureModel";
-import { connect, disconnect } from "../repository/database";
 
 /**
  * Creates a new mythical creature in the database based on the request body
@@ -19,29 +18,27 @@ export async function createCreature(
     strengths,
     weaknesses,
     funFact,
-    _createdBy,
   } = req.body;
-  const imageURL = req.body.imageURL;
+  const { imageURL } = req.body;
+  const _createdBy: string = req.body._createdBy;
+
+  if (
+    !name ||
+    !translation ||
+    !description ||
+    !powerLevel ||
+    !strengths ||
+    !weaknesses ||
+    !funFact ||
+    !imageURL ||
+    !_createdBy
+  ) {
+    res.status(400).json({ error: "Missing required fields." });
+    return;
+  }
 
   try {
-    await connect();
-
-    // Validate required fields except imageURL (since it's uploaded separately)
-    if (
-      !name ||
-      !translation ||
-      !description ||
-      !powerLevel ||
-      !strengths ||
-      !weaknesses ||
-      !funFact ||
-      !_createdBy
-    ) {
-      res.status(400).json({ error: "Missing required fields." });
-      return;
-    }
-
-    // Check if creature already exists
+    // Prevent duplicate creature names
     const existingCreature = await CreatureModel.findOne({
       name: new RegExp(`^${name}$`, "i"),
     });
@@ -71,8 +68,6 @@ export async function createCreature(
     res.status(201).json(result);
   } catch (error) {
     res.status(500).json({ error: "Error creating creature: " + error });
-  } finally {
-    await disconnect();
   }
 }
 
@@ -86,15 +81,13 @@ export async function getAllCreatures(
   res: Response
 ): Promise<void> {
   try {
-    await connect();
-
-    const creatures = await CreatureModel.find({});
-
+    const creatures = await CreatureModel.find({}).populate(
+      "_createdBy",
+      "username email"
+    );
     res.status(200).json(creatures);
   } catch (error) {
     res.status(500).json({ error: "Error retrieving creatures: " + error });
-  } finally {
-    await disconnect();
   }
 }
 
@@ -108,10 +101,11 @@ export async function getCreatureById(
   res: Response
 ): Promise<void> {
   try {
-    await connect();
-
     const id = req.params.id;
-    const creature = await CreatureModel.findById(id);
+    const creature = await CreatureModel.findById(id).populate(
+      "_createdBy",
+      "username email"
+    );
 
     if (!creature) {
       res.status(404).json({ error: "Creature not found." });
@@ -121,8 +115,6 @@ export async function getCreatureById(
     res.status(200).json(creature);
   } catch (error) {
     res.status(500).json({ error: "Error retrieving creature: " + error });
-  } finally {
-    await disconnect();
   }
 }
 
@@ -139,7 +131,16 @@ export async function updateCreatureById(
   const updateData = req.body;
 
   try {
-    await connect();
+    // Check existence and authorization
+    const existing = await CreatureModel.findById(id).lean();
+    if (!existing) {
+      res.status(404).json({ error: "Cannot update creature. Not found." });
+      return;
+    }
+    if (existing._createdBy.toString() !== req.body._createdBy) {
+      res.status(403).json({ error: "Access denied." });
+      return;
+    }
 
     const updatedCreature = await CreatureModel.findByIdAndUpdate(
       id,
@@ -151,16 +152,15 @@ export async function updateCreatureById(
       res
         .status(404)
         .json({ error: `Cannot update creature with id=${id}. Not found.` });
-    } else {
-      res.status(200).json({
-        message: "Creature was successfully updated.",
-        updatedCreature,
-      });
+      return;
     }
+
+    res.status(200).json({
+      message: "Creature was successfully updated.",
+      updatedCreature,
+    });
   } catch (error) {
     res.status(500).json({ error: "Error updating creature: " + error });
-  } finally {
-    await disconnect();
   }
 }
 
@@ -176,7 +176,18 @@ export async function deleteCreatureById(
   const id = req.params.id;
 
   try {
-    await connect();
+    // Check existence and authorization
+    const existing = await CreatureModel.findById(id).lean();
+    if (!existing) {
+      res
+        .status(404)
+        .json({ error: `Cannot delete creature with id=${id}. Not found.` });
+      return;
+    }
+    if (existing._createdBy.toString() !== req.body._createdBy) {
+      res.status(403).json({ error: "Access denied." });
+      return;
+    }
 
     const deletedCreature = await CreatureModel.findByIdAndDelete(id);
 
@@ -184,15 +195,14 @@ export async function deleteCreatureById(
       res
         .status(404)
         .json({ error: `Cannot delete creature with id=${id}. Not found.` });
-    } else {
-      res.status(200).json({
-        message: "Creature was successfully deleted.",
-        deletedCreature,
-      });
+      return;
     }
+
+    res.status(200).json({
+      message: "Creature was successfully deleted.",
+      deletedCreature,
+    });
   } catch (error) {
     res.status(500).json({ error: "Error deleting creature: " + error });
-  } finally {
-    await disconnect();
   }
 }

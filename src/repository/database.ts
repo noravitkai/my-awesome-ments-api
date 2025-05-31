@@ -1,39 +1,26 @@
 import mongoose from "mongoose";
 
-export async function testConnection() {
-  try {
-    await connect();
-    await disconnect();
-    console.log(
-      "Database connection test is successful (connect & disconnect)."
-    );
-  } catch (error) {
-    console.log("Error testing database connection. Error: " + error);
-  }
-}
+let isConnected = false;
 
 export async function connect() {
+  if (isConnected) return;
+
   try {
     if (!process.env.DBHOST) {
-      throw new Error("DBHOST environment variable is not defined.");
+      throw new Error("⚠️ Environment variable DBHOST is not defined.");
     }
+
     await mongoose.connect(process.env.DBHOST);
+
     if (mongoose.connection.db) {
       await mongoose.connection.db.admin().command({ ping: 1 });
-      console.log("Database connection is established.");
+      console.log("✅ DB connection is established.");
+      isConnected = true;
     } else {
-      throw new Error("Database connection is not established.");
+      throw new Error("❌ DB connection failed without a specific reason.");
     }
   } catch (error) {
-    console.log("Error connecting to the database. Error: " + error);
-  }
-}
-
-export async function disconnect() {
-  try {
-    await mongoose.disconnect();
-    console.log("Connection is closed.");
-  } catch (error) {
-    console.log("Error disconnecting from the database. Error: " + error);
+    console.error("❌ Failed to connect to database:", error);
+    process.exit(1);
   }
 }
