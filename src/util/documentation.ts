@@ -34,9 +34,21 @@ export function setupDocs(app: Application) {
         },
       },
       schemas: {
+        User: {
+          type: "object",
+          properties: {
+            _id: { type: "string", readOnly: true },
+            username: { type: "string" },
+            email: { type: "string" },
+            password: { type: "string" },
+            createdAt: { type: "string", readOnly: true },
+            updatedAt: { type: "string", readOnly: true },
+          },
+        },
         Creature: {
           type: "object",
           properties: {
+            _id: { type: "string", readOnly: true },
             name: { type: "string" },
             translation: { type: "string" },
             description: { type: "string" },
@@ -50,16 +62,32 @@ export function setupDocs(app: Application) {
             updatedAt: { type: "string", readOnly: true },
           },
         },
-        User: {
+        Question: {
           type: "object",
           properties: {
-            id: { type: "string" },
-            username: { type: "string" },
-            email: { type: "string" },
-            password: { type: "string" },
-            createdAt: { type: "string" },
-            updatedAt: { type: "string" },
+            _id: { type: "string", readOnly: true },
+            text: { type: "string" },
+            options: {
+              type: "array",
+              minItems: 2,
+              items: {
+                type: "object",
+                properties: {
+                  text: { type: "string" },
+                  creatureIds: {
+                    type: "array",
+                    minItems: 1,
+                    items: { type: "string" },
+                  },
+                },
+                required: ["text", "creatureIds"],
+              },
+            },
+            _createdBy: { type: "string", readOnly: true },
+            createdAt: { type: "string", readOnly: true },
+            updatedAt: { type: "string", readOnly: true },
           },
+          required: ["text", "options", "_createdBy"],
         },
       },
     },

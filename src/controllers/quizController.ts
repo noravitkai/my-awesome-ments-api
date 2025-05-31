@@ -93,7 +93,7 @@ export async function updateQuestionById(
       res.status(404).json({ error: "Cannot update question. Not found." });
       return;
     }
-    if (existing._createdBy !== req.body._createdBy) {
+    if (existing._createdBy.toString() !== req.body._createdBy) {
       res.status(403).json({ error: "Access denied." });
       return;
     }
@@ -127,7 +127,7 @@ export async function deleteQuestionById(
         .json({ error: "Cannot delete quiz question. Not found." });
       return;
     }
-    if (existing._createdBy !== req.body._createdBy) {
+    if (existing._createdBy.toString() !== req.body._createdBy) {
       res.status(403).json({ error: "Access denied." });
       return;
     }
